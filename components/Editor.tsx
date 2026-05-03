@@ -17,6 +17,7 @@ interface EditorProps {
     isNew?: boolean
     isSaved: boolean
     onSave: () => void
+    isAnalyzing: boolean
     onAnalyze: () => void
     onDelete: () => void
 }
@@ -38,6 +39,7 @@ const Editor = ({
     isNew = false,
     isSaved,
     onSave,
+    isAnalyzing,
     onAnalyze,
     onDelete,
 }: EditorProps) => {
@@ -114,9 +116,18 @@ const Editor = ({
                         />
                         <button
                             onClick={onAnalyze}
-                            className="px-4 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors"
+                            disabled={isAnalyzing}
+                            className="px-4 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            Analyze
+                            {isAnalyzing ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                    </svg>
+                                    Analyzing…
+                                </span>
+                            ) : 'Analyze'}
                         </button>
                         <button
                             onClick={onDelete}
@@ -150,10 +161,19 @@ const Editor = ({
                 />
                 <button
                     onClick={onAnalyze}
-                    className="flex-1 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors text-center"
+                    disabled={isAnalyzing}
+                    className="flex-1 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors text-center disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{ fontFamily: 'var(--font-dm-sans)' }}
                 >
-                    Analyze
+                    {isAnalyzing ? (
+                        <span className="flex items-center justify-center gap-2">
+                            <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                            </svg>
+                            Analyzing…
+                        </span>
+                    ) : 'Analyze'}
                 </button>
                 <div className="flex items-center gap-2">
                     {isSaved && (
@@ -168,6 +188,16 @@ const Editor = ({
                     </button>
                 </div>
             </div>
+            {isAnalyzing && (
+                <div
+                    className="lg:hidden fixed left-0 right-0 z-30 flex items-center justify-center gap-2 py-1.5 bg-sage-light/40"
+                    style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px) + 56px)' }}
+                >
+                    <span className="text-[11px] text-forest-muted" style={{ fontFamily: 'var(--font-dm-sans)' }}>
+                        Extracting health signals from your entry…
+                    </span>
+                </div>
+            )}
         </div>
     )
 }

@@ -22,6 +22,7 @@ const JournalEditorPage = () => {
     const [editorContent, setEditorContent] = useState('')
     const [isDirty, setIsDirty] = useState(isNew)
     const [isSaved, setIsSaved] = useState(false)
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
     const [isMobileCardVisible, setIsMobileCardVisible] = useState(false)
@@ -98,6 +99,7 @@ const JournalEditorPage = () => {
     }, [editorContent, saveEntry])
 
     const handleAnalyze = useCallback(() => {
+        setIsAnalyzing(true)
         fetch(`/api/entry/${entryId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -107,6 +109,7 @@ const JournalEditorPage = () => {
                 fetch(`/api/balance/${entryId}`, { method: 'POST' })
             )
             .then(async (res) => {
+                setIsAnalyzing(false)
                 if (!res.ok) return
                 const { data } = await res.json()
                 if (!data) return
@@ -126,6 +129,7 @@ const JournalEditorPage = () => {
                 fetch(`/api/entry/${entryId}/embed`, { method: 'POST' }).catch(() => {})
             })
             .catch(() => {
+                setIsAnalyzing(false)
                 // silent — balance insight is best-effort
             })
     }, [editorContent, entryId])
@@ -216,6 +220,7 @@ const JournalEditorPage = () => {
                         onSave={() => {
                             void handleSave()
                         }}
+                        isAnalyzing={isAnalyzing}
                         onAnalyze={handleAnalyze}
                         onDelete={handleDelete}
                     />
