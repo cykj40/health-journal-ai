@@ -3,6 +3,7 @@
 import { type Entry, type Analysis } from '@/utils/types'
 import Editor from '@/components/Editor'
 import AISidebar from '@/components/AISidebar'
+import MobileAnalysisCard from '@/components/MobileAnalysisCard'
 import DeleteEntryDialog from '@/components/DeleteEntryDialog'
 import { deleteEntry } from '@/utils/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -23,6 +24,7 @@ const JournalEditorPage = () => {
     const [isSaved, setIsSaved] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [isMobileCardVisible, setIsMobileCardVisible] = useState(false)
 
     const latestContentRef = useRef<string>('')
     const savedContentRef = useRef<string>('')
@@ -120,6 +122,7 @@ const JournalEditorPage = () => {
                     coachingInsight: data.coachingInsight ?? undefined,
                     coachingRecommendation: data.coachingRecommendation ?? undefined,
                 }))
+                setIsMobileCardVisible(true)
                 fetch(`/api/entry/${entryId}/embed`, { method: 'POST' }).catch(() => {})
             })
             .catch(() => {
@@ -226,6 +229,13 @@ const JournalEditorPage = () => {
                     />
                 </aside>
             </div>
+
+            <MobileAnalysisCard
+                analysis={analysis ?? entry.analysis}
+                healthSnapshot={entry.healthSnapshot}
+                isVisible={isMobileCardVisible}
+                onClose={() => setIsMobileCardVisible(false)}
+            />
 
             <DeleteEntryDialog
                 isOpen={isDeleteDialogOpen}
