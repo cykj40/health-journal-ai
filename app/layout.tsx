@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
   title: "Health Journal AI - Your AI-Powered Journaling Companion",
   description:
     "Transform your thoughts into health insights with AI-powered journaling.",
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Health Journal',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#3D4A3A',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -42,6 +56,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${dmSans.variable} antialiased bg-custom-gradient dark:bg-none dark:bg-zinc-950 min-h-screen`}
       >
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
