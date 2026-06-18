@@ -13,17 +13,26 @@ const EntryCard = ({ entry }: EntryCardProps) => {
     const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
 
+    const analysis = entry.analysis ?? {
+        mood: '',
+        subject: '',
+        negative: false,
+        summary: '',
+        color: '#C9D5B8',
+        sentimentScore: 0,
+    }
+
     const shortDate = new Date(entry.createdAt).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
     })
 
-    const rawScore = entry.analysis?.sentimentScore != null
-        ? Number(entry.analysis.sentimentScore)
+    const rawScore = analysis.sentimentScore != null
+        ? Number(analysis.sentimentScore)
         : null
     const score = rawScore !== null && !isNaN(rawScore) ? rawScore.toFixed(1) : null
 
-    const balanceScore = entry.analysis?.balanceScore != null && !isNaN(Number(entry.analysis.balanceScore))
+    const balanceScore = analysis.balanceScore != null && !isNaN(Number(analysis.balanceScore))
         ? Math.round(Number(entry.analysis.balanceScore))
         : null
 
@@ -64,7 +73,7 @@ const EntryCard = ({ entry }: EntryCardProps) => {
                 {/* Mood color dot */}
                 <span
                     className="w-2.5 h-2.5 rounded-full shrink-0 mt-[5px]"
-                    style={{ backgroundColor: entry.analysis.color || '#5C7A52' }}
+                    style={{ backgroundColor: analysis.color || '#C9D5B8' }}
                 />
 
                 <div className="flex-1 min-w-0">
@@ -82,7 +91,7 @@ const EntryCard = ({ entry }: EntryCardProps) => {
                                 className="text-xs font-medium text-forest-muted truncate"
                                 style={{ fontFamily: 'var(--font-dm-sans)' }}
                             >
-                                {entry.analysis.mood || 'No mood'}
+                                {analysis.mood || 'No mood'}
                                 {score ? ` · ${score}` : ''}
                             </span>
                         )}
@@ -105,7 +114,7 @@ const EntryCard = ({ entry }: EntryCardProps) => {
                             overflow: 'hidden',
                         }}
                     >
-                        {entry.analysis.summary || 'No summary yet'}
+                        {analysis.summary || 'No summary yet'}
                     </p>
                 </div>
 

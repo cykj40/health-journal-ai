@@ -24,12 +24,12 @@ export const POST = async (request: Request) => {
         .values({
             entryId: entry.id,
             userId: user.id,
-            mood: 'Neutral',
-            subject: 'None',
+            mood: '',
+            subject: '',
             negative: false,
-            summary: 'None',
+            summary: '',
             sentimentScore: '0',
-            color: '#0101fe'
+            color: '#C9D5B8'
         })
         .returning()
 

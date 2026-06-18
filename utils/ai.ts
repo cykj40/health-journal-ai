@@ -78,94 +78,62 @@ export type EntryAnalysis = {
 
 // ── analyzeEntry ──────────────────────────────────────────────────────────────
 
-export const analyzeEntry = async (entry: {
-    id: string
-    content: string
-}): Promise<EntryAnalysis> => {
-    const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 2000,
-        messages: [
-            {
-                role: 'user',
-                content: `You are a health and wellness journal analyst. Analyze the following journal entry and extract both emotional and physical health signals.
+const EntryAnalysisSchema = z.object({
+    mood: z.string(),
+    subject: z.string(),
+    negative: z.boolean(),
+    summary: z.string(),
+    color: z.string(),
+    sentimentScore: z.number(),
+    moodStability: z.enum(['stable', 'variable', 'crashed']),
+    anxietyLevel: z.number().nullable(),
+    motivationLevel: z.number().nullable(),
+    gratitudeMentioned: z.boolean(),
+    socialConnection: z.enum(['isolated', 'neutral', 'connected']).nullable(),
+    energyLevel: z.number().nullable(),
+    stressLevel: z.number().nullable(),
+    workStress: z.boolean(),
+    workStressSeverity: z.number().nullable(),
+    sleepQuality: z.number().nullable(),
+    exerciseMentioned: z.boolean(),
+    exerciseType: z.string().nullable(),
+    exerciseDuration: z.string().nullable(),
+    exerciseIntensity: z.enum(['low', 'medium', 'high']).nullable(),
+    stretchingMobility: z.boolean(),
+    restDayMentioned: z.boolean(),
+    nutritionMentioned: z.boolean(),
+    nutritionSummary: z.string().nullable(),
+    foodLogged: z.array(z.string()),
+    waterIntake: z.string().nullable(),
+    alcoholMentioned: z.boolean(),
+    caffeineNoted: z.boolean(),
+    physicalSymptoms: z.array(z.string()),
+    painLevel: z.number().nullable(),
+    painLocation: z.array(z.string()),
+    heartRateNoted: z.boolean(),
+    digestionNoted: z.boolean(),
+    digestionNotes: z.string().nullable(),
+    skinNoted: z.boolean(),
+    cycleNoted: z.boolean(),
+    sunExposure: z.boolean(),
+    outdoorTime: z.boolean(),
+    coldExposure: z.boolean(),
+    breathworkMeditation: z.boolean(),
+    travelMentioned: z.boolean(),
+    naturalEnvironment: z.boolean(),
+    screenTimeNoted: z.boolean(),
+    medicationsMentioned: z.array(z.string()),
+    healthFlags: z.array(z.string()),
+})
 
-Respond ONLY with a valid JSON object. No markdown, no explanation, no code blocks. Just raw JSON.
-
-Required fields and their types:
-{
-  "mood": "string — primary mood label e.g. Happy, Anxious, Tired, Motivated",
-  "subject": "string — main topic/theme of the entry",
-  "negative": "boolean — true if entry contains predominantly negative emotions",
-  "summary": "string — 1-2 sentence summary of the entry",
-  "color": "string — hex color representing the mood e.g. #5C7A52 for calm, #E57373 for stress",
-  "sentimentScore": "number — -10 to 10 scale",
-  "moodStability": "stable | variable | crashed",
-  "anxietyLevel": "number 1-5 or null if not inferable",
-  "motivationLevel": "number 1-5 or null if not inferable",
-  "gratitudeMentioned": "boolean",
-  "socialConnection": "isolated | neutral | connected | null",
-  "energyLevel": "number 1-5 or null",
-  "stressLevel": "number 1-5 or null",
-  "workStress": "boolean",
-  "workStressSeverity": "number 1-5 or null",
-  "sleepQuality": "number 1-5 or null",
-  "exerciseMentioned": "boolean",
-  "exerciseType": "string or null — e.g. running, yoga, cycling, walking",
-  "exerciseDuration": "string or null — e.g. 30 minutes",
-  "exerciseIntensity": "low | medium | high | null",
-  "stretchingMobility": "boolean",
-  "restDayMentioned": "boolean",
-  "nutritionMentioned": "boolean",
-  "nutritionSummary": "string or null",
-  "foodLogged": "array of strings",
-  "waterIntake": "string or null",
-  "alcoholMentioned": "boolean",
-  "caffeineNoted": "boolean",
-  "physicalSymptoms": "array of strings e.g. headache, fatigue, bloating",
-  "painLevel": "number 0-10 or null",
-  "painLocation": "array of strings e.g. lower back, knees",
-  "heartRateNoted": "boolean",
-  "digestionNoted": "boolean",
-  "digestionNotes": "string or null",
-  "skinNoted": "boolean",
-  "cycleNoted": "boolean",
-  "sunExposure": "boolean",
-  "outdoorTime": "boolean",
-  "coldExposure": "boolean",
-  "breathworkMeditation": "boolean",
-  "travelMentioned": "boolean",
-  "naturalEnvironment": "boolean",
-  "screenTimeNoted": "boolean",
-  "medicationsMentioned": "array of strings",
-  "healthFlags": "array of strings — notable health signals worth flagging e.g. reports chronic fatigue, skipped meals, high stress day, sleep deprived"
-}
-
-Journal entry:
-${entry.content}`,
-            },
-        ],
+export const analyzeEntry = async (entry: { id: string; content: string }): Promise<EntryAnalysis> => {
+    const { object } = await generateObject({
+        model: anthropicProvider('claude-sonnet-4-5'),
+        schema: EntryAnalysisSchema,
+        system: `You are a health and wellness journal analyst. Extract emotional and physical health signals from journal entries. For color: use a hex that reflects mood — greens (#5C7A52, #4CAF50) for positive/calm, yellows (#F59E0B) for neutral/mixed, reds (#E57373, #EF5350) for stress/negative. For sentimentScore: -10 (very negative) to 10 (very positive). Be precise and evidence-based — only mark fields true if the entry actually mentions them.`,
+        prompt: `Analyze this journal entry and extract all health signals:\n\n${entry.content}`,
     })
-
-    const raw = message.content[0].type === 'text' ? message.content[0].text : ''
-
-    try {
-        return JSON.parse(raw) as EntryAnalysis
-    } catch {
-        // Second attempt — ask Claude to fix its own output
-        const fix = await anthropic.messages.create({
-            model: 'claude-sonnet-4-5',
-            max_tokens: 2000,
-            messages: [
-                {
-                    role: 'user',
-                    content: `The following is not valid JSON. Fix it and return only valid JSON, no markdown:\n\n${raw}`,
-                },
-            ],
-        })
-        const fixedRaw = fix.content[0].type === 'text' ? fix.content[0].text : '{}'
-        return JSON.parse(fixedRaw) as EntryAnalysis
-    }
+    return object
 }
 
 // ── qa ────────────────────────────────────────────────────────────────────────
