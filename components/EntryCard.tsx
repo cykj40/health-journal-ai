@@ -2,6 +2,7 @@
 
 import { type Entry } from '@/utils/types'
 import { deleteEntry } from '@/utils/api'
+import { downloadFile } from '@/utils/exportUtils'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -51,6 +52,25 @@ const EntryCard = ({ entry }: EntryCardProps) => {
             await deleteEntry(entry.id)
             router.refresh()
         }
+    }
+
+    const handleExport = (e: React.MouseEvent) => {
+        e.preventDefault()
+
+        const exportData = {
+            date: entry.createdAt,
+            content: entry.content.replace(/<[^>]*>/g, ''),
+            mood: analysis.mood,
+            subject: analysis.subject,
+            summary: analysis.summary,
+            sentimentScore: analysis.sentimentScore,
+            balanceScore: analysis.balanceScore,
+        }
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json',
+        })
+        downloadFile(blob, `journal-entry-${entry.createdAt.split('T')[0]}.json`)
     }
 
     return (
@@ -118,17 +138,29 @@ const EntryCard = ({ entry }: EntryCardProps) => {
                     </p>
                 </div>
 
-                {/* Delete button — always visible on mobile, hover-only on desktop */}
-                <button
-                    onClick={handleDelete}
-                    className="shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 text-red-400 hover:text-red-600 transition-opacity flex items-center justify-center"
-                    style={{ minHeight: '44px', minWidth: '44px' }}
-                    title="Delete entry"
-                >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                {/* Export + delete — always visible on mobile, hover-only on desktop */}
+                <div className="flex shrink-0 items-start">
+                    <button
+                        onClick={handleExport}
+                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 text-forest-muted hover:text-forest transition-opacity flex items-center justify-center"
+                        style={{ minHeight: '44px', minWidth: '44px' }}
+                        title="Export entry"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                    </button>
+                    <button
+                        onClick={handleDelete}
+                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 text-red-400 hover:text-red-600 transition-opacity flex items-center justify-center"
+                        style={{ minHeight: '44px', minWidth: '44px' }}
+                        title="Delete entry"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     )
