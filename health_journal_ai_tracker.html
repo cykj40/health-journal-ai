@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Journal AI — Build Tracker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg-card: #1a1d27;
+    --bg-card-hover: #1f2233;
+    --bg-body: #14171f;
+    --border: #2a2d3e;
+    --border-light: #22253a;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8b90a8;
+    --text-tertiary: #555870;
+    --green: #1d9e75;
+    --green-bg: #0d2a20;
+    --green-text: #4ecfa3;
+    --amber: #c97b12;
+    --amber-bg: #2a1f08;
+    --amber-text: #f0a832;
+    --red: #a32d2d;
+    --red-bg: #2a0d0d;
+    --red-text: #f08080;
+    --blue: #2563eb;
+    --blue-bg: #0d1a2e;
+    --blue-text: #7eb3f7;
+    --purple: #7c3aed;
+    --purple-bg: #1a0d2e;
+    --purple-text: #b388ff;
+    --radius: 8px;
+    --radius-sm: 5px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .sidebar-brand {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.01em;
+  }
+
+  .sidebar-brand span {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  .nav-section {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.75rem 0.5rem 0.25rem;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.4rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-blue { background: var(--blue); }
+  .dot-purple { background: var(--purple); }
+  .dot-gray { background: var(--text-tertiary); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding-left: 0.5rem;
+    line-height: 1.7;
+  }
+
+  /* ── Main ── */
+  .main {
+    padding: 1.5rem 2rem 3rem;
+    max-width: 900px;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .page-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+    font-family: var(--font-mono);
+  }
+
+  /* ── Stats row ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    text-align: center;
+  }
+
+  .stat-n {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+  }
+
+  .stat-l {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Progress bar ── */
+  .prog-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  .prog-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .prog-bar {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--green);
+    transition: width 0.4s ease;
+  }
+
+  /* ── Stack pills ── */
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .stack-pill {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--bg-card);
+  }
+
+  .stack-pill.active {
+    border-color: var(--green);
+    color: var(--green-text);
+    background: var(--green-bg);
+  }
+
+  /* ── Priority cards ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .priority {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+
+  .p-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    background: var(--bg-card);
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .p-header:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .p-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    min-width: 28px;
+    font-family: var(--font-mono);
+  }
+
+  .p-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-done { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green); }
+  .badge-inprogress { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber); }
+  .badge-todo { background: var(--bg); color: var(--text-tertiary); border: 1px solid var(--border); }
+  .badge-blocked { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red); }
+  .badge-planned { background: var(--blue-bg); color: var(--blue-text); border: 1px solid var(--blue); }
+
+  .chevron {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    transition: transform 0.2s;
+  }
+
+  .chevron.open { transform: rotate(180deg); }
+
+  .p-body {
+    border-top: 1px solid var(--border-light);
+    padding: 0.875rem 1rem;
+    background: var(--bg-body);
+  }
+
+  .subtasks {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .subtask {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .subtask.done { color: var(--text-tertiary); text-decoration: line-through; }
+
+  .chk {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .chk.done { background: var(--green); border-color: var(--green); }
+  .chk.done::after { content: "✓"; font-size: 8px; color: #fff; }
+
+  .p-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .meta-pill {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    padding: 1px 7px;
+    border-radius: 20px;
+  }
+
+  .notes {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border-light);
+    padding-top: 8px;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  /* ── Architecture section ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .arch-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+  }
+
+  .arch-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .arch-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .arch-item:last-child { border-bottom: none; }
+  .arch-item-key { color: var(--text-secondary); font-family: var(--font-mono); }
+  .arch-item-val { color: var(--text-primary); font-size: 11px; text-align: right; }
+
+  /* ── Sessions ── */
+  .sessions {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+  }
+
+  .sessions-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.875rem;
+  }
+
+  .session {
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .session:last-child { border-bottom: none; }
+
+  .session-date {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-bottom: 3px;
+  }
+
+  .session-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ── Integration map ── */
+  .integration-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .integration-box .hl-green { color: var(--green-text); }
+  .integration-box .hl-blue { color: var(--blue-text); }
+  .integration-box .hl-amber { color: var(--amber-text); }
+  .integration-box .hl-purple { color: var(--purple-text); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      Health Journal AI
+      <span>Build Tracker v1.0</span>
+    </div>
+
+    <div class="nav-section">Roadmap</div>
+    <button class="nav-link active" onclick="showSection('roadmap')">
+      <span class="nav-dot dot-green"></span> Priorities
+    </button>
+    <button class="nav-link" onclick="showSection('architecture')">
+      <span class="nav-dot dot-blue"></span> Architecture
+    </button>
+    <button class="nav-link" onclick="showSection('integrations')">
+      <span class="nav-dot dot-purple"></span> Integrations
+    </button>
+    <button class="nav-link" onclick="showSection('sessions')">
+      <span class="nav-dot dot-amber"></span> Session Log
+    </button>
+
+    <div class="nav-section">Apps</div>
+    <a class="nav-link" href="#" target="_blank">
+      <span class="nav-dot dot-green"></span> Health Journal AI
+    </a>
+    <a class="nav-link" href="#" target="_blank">
+      <span class="nav-dot dot-blue"></span> T1Copilot
+    </a>
+
+    <div class="sidebar-footer">
+      Next.js 15 · TypeScript<br>
+      Neon + Drizzle · Better Auth<br>
+      Anthropic Claude · OpenAI<br>
+      Vercel · PWA
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ── ROADMAP SECTION ── -->
+    <div id="section-roadmap">
+      <div class="page-header">
+        <div class="page-title">Health Journal AI — Build Tracker</div>
+        <div class="page-subtitle">Next.js 15 · Drizzle ORM · Neon · Better Auth · TipTap · Anthropic · OpenAI · Vercel</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">Done</div></div>
+        <div class="stat"><div class="stat-n" id="s-ip">0</div><div class="stat-l">In Progress</div></div>
+        <div class="stat"><div class="stat-n" id="s-todo">0</div><div class="stat-l">To Do</div></div>
+        <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">Total</div></div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-label"><span>Overall progress</span><span id="pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      </div>
+
+      <div class="stack-row">
+        <span class="stack-pill active">Next.js 15</span>
+        <span class="stack-pill active">TypeScript</span>
+        <span class="stack-pill active">Neon Postgres</span>
+        <span class="stack-pill active">Drizzle ORM</span>
+        <span class="stack-pill active">Better Auth</span>
+        <span class="stack-pill active">TipTap</span>
+        <span class="stack-pill active">Anthropic Claude</span>
+        <span class="stack-pill active">OpenAI Whisper</span>
+        <span class="stack-pill active">Recharts</span>
+        <span class="stack-pill active">Vercel AI SDK</span>
+        <span class="stack-pill active">PWA</span>
+        <span class="stack-pill">MCP Server</span>
+        <span class="stack-pill">Dexcom CGM</span>
+        <span class="stack-pill">Peloton</span>
+      </div>
+
+      <div id="priorities"></div>
+    </div>
+
+    <!-- ── ARCHITECTURE SECTION ── -->
+    <div id="section-architecture" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Architecture</div>
+        <div class="page-subtitle">System design, data flow, and engineering decisions</div>
+      </div>
+
+      <div class="section-label">Core Loop</div>
+      <div class="integration-box"><span class="hl-green">Write</span>  →  <span class="hl-blue">Extract</span>  →  <span class="hl-amber">Correlate</span>  →  <span class="hl-purple">Coach</span>
+Rich text journal     AI pulls 40+ signals    Journal + device data   AI sidebar coaches
+with voice dictation  per entry               correlated by timestamp on patterns</div>
+
+      <div class="section-label">Stack</div>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card-title">Frontend</div>
+          <div class="arch-item"><span class="arch-item-key">Framework</span><span class="arch-item-val">Next.js 15 App Router</span></div>
+          <div class="arch-item"><span class="arch-item-key">Language</span><span class="arch-item-val">TypeScript</span></div>
+          <div class="arch-item"><span class="arch-item-key">Editor</span><span class="arch-item-val">TipTap rich text</span></div>
+          <div class="arch-item"><span class="arch-item-key">Charts</span><span class="arch-item-val">Recharts</span></div>
+          <div class="arch-item"><span class="arch-item-key">Styling</span><span class="arch-item-val">Tailwind CSS</span></div>
+          <div class="arch-item"><span class="arch-item-key">PWA</span><span class="arch-item-val">manifest + service worker</span></div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-title">Backend</div>
+          <div class="arch-item"><span class="arch-item-key">DB</span><span class="arch-item-val">Neon (Postgres)</span></div>
+          <div class="arch-item"><span class="arch-item-key">ORM</span><span class="arch-item-val">Drizzle ORM</span></div>
+          <div class="arch-item"><span class="arch-item-key">Auth</span><span class="arch-item-val">Better Auth</span></div>
+          <div class="arch-item"><span class="arch-item-key">Deploy</span><span class="arch-item-val">Vercel</span></div>
+          <div class="arch-item"><span class="arch-item-key">Storage</span><span class="arch-item-val">Vercel (image uploads)</span></div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-title">AI Layer</div>
+          <div class="arch-item"><span class="arch-item-key">Analysis</span><span class="arch-item-val">claude-sonnet-4-5</span></div>
+          <div class="arch-item"><span class="arch-item-key">SDK</span><span class="arch-item-val">Vercel AI SDK + generateObject</span></div>
+          <div class="arch-item"><span class="arch-item-key">Schema</span><span class="arch-item-val">Zod (40+ field extraction)</span></div>
+          <div class="arch-item"><span class="arch-item-key">Voice</span><span class="arch-item-val">OpenAI Whisper (whisper-1)</span></div>
+          <div class="arch-item"><span class="arch-item-key">Embeddings</span><span class="arch-item-val">text-embedding-3-small</span></div>
+          <div class="arch-item"><span class="arch-item-key">Vector DB</span><span class="arch-item-val">pgvector on Neon (1536-dim)</span></div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-title">Database Schema</div>
+          <div class="arch-item"><span class="arch-item-key">users</span><span class="arch-item-val">app user records</span></div>
+          <div class="arch-item"><span class="arch-item-key">journal_entries</span><span class="arch-item-val">content + healthSnapshot</span></div>
+          <div class="arch-item"><span class="arch-item-key">entry_analysis</span><span class="arch-item-val">mood, sentiment, balance</span></div>
+          <div class="arch-item"><span class="arch-item-key">health_metrics</span><span class="arch-item-val">40+ extracted fields</span></div>
+          <div class="arch-item"><span class="arch-item-key">vector_entries</span><span class="arch-item-val">embeddings (1536-dim)</span></div>
+          <div class="arch-item"><span class="arch-item-key">BA tables</span><span class="arch-item-val">user/session/account</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">Design System (Locked — Do Not Change)</div>
+      <div class="arch-card" style="margin-bottom:1.25rem">
+        <div class="arch-card-title">Tokens</div>
+        <div class="arch-item"><span class="arch-item-key">parchment</span><span class="arch-item-val" style="color:#F5F2EC">■ #F5F2EC — page backgrounds</span></div>
+        <div class="arch-item"><span class="arch-item-key">forest</span><span class="arch-item-val" style="color:#3D4A3A">■ #3D4A3A — primary text</span></div>
+        <div class="arch-item"><span class="arch-item-key">forest-muted</span><span class="arch-item-val" style="color:#6B7A66">■ #6B7A66 — secondary text</span></div>
+        <div class="arch-item"><span class="arch-item-key">sage</span><span class="arch-item-val" style="color:#5C7A52">■ #5C7A52 — accents, CTAs</span></div>
+        <div class="arch-item"><span class="arch-item-key">sage-light</span><span class="arch-item-val" style="color:#C9D5B8">■ #C9D5B8 — borders, dividers</span></div>
+        <div class="arch-item"><span class="arch-item-key">Playfair Display</span><span class="arch-item-val">headings + brand text</span></div>
+        <div class="arch-item"><span class="arch-item-key">DM Sans</span><span class="arch-item-val">body text + UI labels</span></div>
+      </div>
+
+      <div class="section-label">Key Engineering Rules</div>
+      <div class="arch-card">
+        <div class="arch-card-title">Hard Rules</div>
+        <div class="arch-item"><span class="arch-item-key">drizzle-kit push</span><span class="arch-item-val" style="color:var(--red-text)">BANNED — use Neon SQL directly</span></div>
+        <div class="arch-item"><span class="arch-item-key">AI structured output</span><span class="arch-item-val">generateObject + Zod only — no raw SDK</span></div>
+        <div class="arch-item"><span class="arch-item-key">Schema changes</span><span class="arch-item-val">ALTER TABLE via Neon SQL Editor</span></div>
+        <div class="arch-item"><span class="arch-item-key">Service worker</span><span class="arch-item-val">static assets only — no dynamic caching</span></div>
+        <div class="arch-item"><span class="arch-item-key">Dexcom events</span><span class="arch-item-val">HITL confirmation required — no auto-log</span></div>
+        <div class="arch-item"><span class="arch-item-key">Claude Code prompts</span><span class="arch-item-val">one concern per prompt, no git commands</span></div>
+      </div>
+    </div>
+
+    <!-- ── INTEGRATIONS SECTION ── -->
+    <div id="section-integrations" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Integrations</div>
+        <div class="page-subtitle">Device data layer and cross-app connectivity</div>
+      </div>
+
+      <div class="section-label">Integration Architecture</div>
+      <div class="integration-box"><span class="hl-green">Health Journal AI</span>                    <span class="hl-blue">T1Copilot</span>
+├── app/api/mcp/route.ts              ├── packages/mcp-clients/
+│   MCP Streamable HTTP server        │   └── journal-client.ts
+│   Tools:                            │       callJournalTool()
+│   - get_journal_entries             │
+│   - get_journal_entry               ├── apps/web/api/chat/route.ts
+│   - get_loggable_events             │   AI SDK tools:
+│                                     │   - fetch_journal_entries
+├── utils/dexcom-client.ts            │   - fetch_journal_loggable_events
+│   MCP Streamable HTTP client        │   - render_journal_events
+│   - getGlucoseRange (read)          │     → confirm_log_event (HITL)
+│   - logExerciseToDexcom (write)     │
+│   - logCarbsToDexcom (write)        └── Dexcom MCP (shared truth)
+│                                         Reads journal-logged events
+└── components/DexcomEventConfirm.tsx     alongside CGM + Peloton data
+    HITL card — one button per event</div>
+
+      <div class="section-label">Data Flow</div>
+      <div class="integration-box">Journal entry saved
+      ↓
+Dexcom CGM fetch (±2hr window around entry.createdAt)
+      ↓
+<span class="hl-green">analyzeEntry(content, cgmContext)</span>    ← richer AI because it sees actual glucose
+      ↓
+health_metrics stored (40+ fields)
+device_glucose_avg/min/max/trend stored on entry_analysis
+      ↓
+<span class="hl-amber">DexcomEventConfirm card appears</span>       ← HITL: one card per event type
+User taps "Log to Dexcom" per event
+      ↓
+<span class="hl-blue">POST /api/dexcom-log</span>
+→ log_exercise / log_carbs on Dexcom MCP
+      ↓
+<span class="hl-purple">T1Copilot reads logged events</span>         ← via Dexcom MCP shared timeline
+Correlates with CGM + Peloton data</div>
+
+      <div class="section-label">MCP Servers</div>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card-title">Dexcom CGM MCP</div>
+          <div class="arch-item"><span class="arch-item-key">URL</span><span class="arch-item-val">dexcom-mcp-server.fly.dev</span></div>
+          <div class="arch-item"><span class="arch-item-key">Auth</span><span class="arch-item-val">Bearer token (Fly secret)</span></div>
+          <div class="arch-item"><span class="arch-item-key">Read tools</span><span class="arch-item-val">get_glucose_range</span></div>
+          <div class="arch-item"><span class="arch-item-key">Write tools</span><span class="arch-item-val">log_exercise, log_carbs</span></div>
+          <div class="arch-item"><span class="arch-item-key">HITL</span><span class="arch-item-val" style="color:var(--amber-text)">Required for all writes</span></div>
+          <div class="arch-item"><span class="arch-item-key">Transport</span><span class="arch-item-val">MCP Streamable HTTP + SSE</span></div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-title">Health Journal MCP</div>
+          <div class="arch-item"><span class="arch-item-key">URL</span><span class="arch-item-val">/api/mcp (on Health Journal AI)</span></div>
+          <div class="arch-item"><span class="arch-item-key">Auth</span><span class="arch-item-val">Bearer token (shared secret)</span></div>
+          <div class="arch-item"><span class="arch-item-key">Tools</span><span class="arch-item-val">get_journal_entries</span></div>
+          <div class="arch-item"><span class="arch-item-key"></span><span class="arch-item-val">get_journal_entry</span></div>
+          <div class="arch-item"><span class="arch-item-key"></span><span class="arch-item-val">get_loggable_events</span></div>
+          <div class="arch-item"><span class="arch-item-key">Status</span><span class="arch-item-val" style="color:var(--amber-text)">Planned (Phase 3)</span></div>
+        </div>
+      </div>
+
+      <div class="section-label">Env Vars Required</div>
+      <div class="arch-card">
+        <div class="arch-card-title">Health Journal AI (Vercel)</div>
+        <div class="arch-item"><span class="arch-item-key">DEXCOM_MCP_URL</span><span class="arch-item-val">https://dexcom-mcp-server.fly.dev</span></div>
+        <div class="arch-item"><span class="arch-item-key">DEXCOM_MCP_TOKEN</span><span class="arch-item-val">Bearer token from Fly secret</span></div>
+        <div class="arch-item"><span class="arch-item-key">MCP_BEARER_TOKEN</span><span class="arch-item-val">Shared secret for journal MCP server</span></div>
+        <div class="arch-item"><span class="arch-item-key">ANTHROPIC_API_KEY</span><span class="arch-item-val">claude-sonnet-4-5 analysis</span></div>
+        <div class="arch-item"><span class="arch-item-key">OPENAI_API_KEY</span><span class="arch-item-val">Whisper + text-embedding-3-small</span></div>
+        <div class="arch-item"><span class="arch-item-key">DATABASE_URL</span><span class="arch-item-val">Neon connection string</span></div>
+        <div class="arch-item"><span class="arch-item-key">BETTER_AUTH_SECRET</span><span class="arch-item-val">Auth signing key</span></div>
+        <div class="arch-item"><span class="arch-item-key">NEXT_PUBLIC_APP_URL</span><span class="arch-item-val">Deployed URL (Better Auth)</span></div>
+      </div>
+    </div>
+
+    <!-- ── SESSIONS SECTION ── -->
+    <div id="section-sessions" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Session Log</div>
+        <div class="page-subtitle">Chronological record of build sessions</div>
+      </div>
+      <div id="session-log-full"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const PRIORITIES = [
+  {
+    id: 'P0', title: 'Cleanup & Foundation',
+    status: 'done',
+    tags: ['DB', 'Editor', 'Tests'],
+    subtasks: [
+      { text: 'Wire up MicButton + useVoiceDictation hook in Editor.tsx', done: true },
+      { text: 'Fix global-teardown ESM error (schema.ts CJS import)', done: true },
+      { text: 'Validate health_metrics table in production Neon', done: true },
+      { text: 'Add balance_score / coaching_insight / coaching_recommendation columns via ALTER TABLE', done: true },
+      { text: 'Add health_snapshot column to journal_entries via ALTER TABLE', done: true },
+      { text: 'Add NEXT_PUBLIC_APP_URL to Vercel env vars', done: false },
+      { text: 'Apply design system tokens to AnalyticsDashboard (remove raw hex)', done: false },
+      { text: 'Archive page: replace bg-zinc with design system classes', done: false },
+    ],
+    notes: 'DB schema drift resolved via direct Neon SQL (ALTER TABLE IF NOT EXISTS). drizzle-kit push BANNED — Better Auth tables cause destructive drop warnings. MicButton wired and voice dictation active.'
+  },
+  {
+    id: 'P1', title: 'AI Analysis Layer — Sentiment, Color & Health Extraction',
+    status: 'done',
+    tags: ['AI', 'Zod', 'DB'],
+    subtasks: [
+      { text: 'Migrate analyzeEntry from raw Anthropic SDK to generateObject + Zod schema', done: true },
+      { text: '40-field EntryAnalysisSchema — mood, sleep, stress, exercise, nutrition, symptoms', done: true },
+      { text: 'Fix sentiment score (was always 0.0 — seed placeholder never overwritten)', done: true },
+      { text: 'Fix mood color (was always #0101fe — seed default)', done: true },
+      { text: 'Fix summary showing "None" — onConflictDoUpdate now writes real AI data', done: true },
+      { text: 'Entry card UX — "Not yet analyzed" indicator for un-analyzed entries', done: true },
+      { text: 'Seed placeholder values changed to empty strings + sage-light color', done: true },
+      { text: 'generateBalanceInsight — coaching insight + recommendation (already working)', done: true },
+    ],
+    notes: 'Raw Anthropic SDK fails silently on markdown-fenced JSON responses. generateObject + Zod is now mandatory for all structured AI output in this codebase.'
+  },
+  {
+    id: 'P2', title: 'PWA Conversion',
+    status: 'done',
+    tags: ['PWA', 'Mobile', 'Icons'],
+    subtasks: [
+      { text: 'manifest.json — name, short_name, start_url /journal, standalone display', done: true },
+      { text: 'Pine tree icons — 192px, 512px, 512px maskable (white bg, sage/forest palette)', done: true },
+      { text: 'Wire manifest + apple-web-app meta tags into app/layout.tsx', done: true },
+      { text: 'Service worker (sw.js) — static asset caching only, no dynamic content', done: true },
+      { text: 'ServiceWorkerRegister.tsx client component — registers sw.js on mount', done: true },
+      { text: 'Confirm installable on iOS Safari + Android Chrome', done: true },
+      { text: 'Fix www. cert mismatch (browser autocomplete artifact — not a code issue)', done: true },
+    ],
+    notes: 'Static-asset caching only in service worker — no journal data ever cached. Prevents stale entry reads and auth confusion on mobile. www. cert error was browser autocomplete prepending www to *.vercel.app hostname which has no cert.'
+  },
+  {
+    id: 'P3', title: 'All Entries Tab — Full CRUD + Search',
+    status: 'inprogress',
+    tags: ['UI', 'API', 'Search'],
+    subtasks: [
+      { text: 'GET /api/entries — server-driven search: q (ilike), startDate, endDate, mood filter, offset pagination', done: false },
+      { text: 'app/(dashboard)/entries/page.tsx + client.tsx — search input (debounced 400ms)', done: false },
+      { text: 'Date range filter row using design system colors', done: false },
+      { text: 'Mood filter pills — dynamic from result set, toggleable', done: false },
+      { text: 'Results grouped by month, rendered via EntryCard + Link', done: false },
+      { text: '"Load more" pagination — appends results, does not replace', done: false },
+      { text: 'Empty state matching journal page style', done: false },
+      { text: 'Add Entries to Sidebar.tsx and BottomNav.tsx (between Journal and Analytics)', done: false },
+      { text: 'Delete app/(dashboard)/archive/page.tsx — superseded by /entries', done: false },
+      { text: 'Per-entry JSON export — download icon on EntryCard, uses downloadFile from exportUtils', done: false },
+    ],
+    notes: 'Journal page only shows current month (firstDayOfMonth filter). Archive page exists but is unreachable — no nav links. All entries older than current month are effectively lost. /entries tab uses server-side DB filtering via indexed columns (journal_entries_created_at_idx, journal_entries_user_created_idx) — not a full table scan.'
+  },
+  {
+    id: 'P4', title: 'Dexcom CGM Integration — Read + Write with HITL',
+    status: 'todo',
+    tags: ['Dexcom', 'MCP', 'HITL'],
+    subtasks: [
+      { text: 'Add device_glucose_avg/min/max/trend/readings_count columns via Neon SQL', done: false },
+      { text: 'utils/dexcom-client.ts — MCP Streamable HTTP client (callDexcomTool + typed wrappers)', done: false },
+      { text: 'Add DEXCOM_MCP_URL + DEXCOM_MCP_TOKEN to utils/env.ts required array', done: false },
+      { text: 'Update entryAnalysis schema.ts with 5 new device_glucose columns', done: false },
+      { text: 'Enrich analyzeEntry — optional cgmContext param, CGM readings in generateObject prompt', done: false },
+      { text: 'Wire CGM fetch into PATCH /api/entry/[id] — ±2hr window, best-effort (never blocks)', done: false },
+      { text: 'Store device_glucose fields in entryAnalysis onConflictDoUpdate', done: false },
+      { text: 'DexcomEventConfirm.tsx — HITL card, one card per event type (exercise/carbs/meds)', done: false },
+      { text: 'POST /api/dexcom-log — routes to log_exercise / log_carbs, medication note only', done: false },
+      { text: 'Wire DexcomEventConfirm into journal editor page after Analyze completes', done: false },
+    ],
+    notes: 'CGM fetch is best-effort — if Dexcom is unreachable, analyzeEntry runs without context (never blocks journal). HITL card appears only when Analyze detects loggable events. Medications note-only (no Dexcom log) — log_insulin requires precise unit counts the journal cannot reliably extract.'
+  },
+  {
+    id: 'P5', title: 'Health Journal AI MCP Server (for T1Copilot)',
+    status: 'todo',
+    tags: ['MCP', 'T1Copilot', 'Integration'],
+    subtasks: [
+      { text: 'Add MCP_BEARER_TOKEN to utils/env.ts required array', done: false },
+      { text: 'app/api/mcp/route.ts — MCP Streamable HTTP server (GET health + POST JSON-RPC)', done: false },
+      { text: 'initialize handler — protocol handshake + Mcp-Session-Id header', done: false },
+      { text: 'tools/list handler — 3 tool definitions: get_journal_entries, get_journal_entry, get_loggable_events', done: false },
+      { text: 'tools/call handler — executes DB queries, returns JSON-RPC result', done: false },
+      { text: 'get_loggable_events — structured exercise/carbs/medications from health_metrics row', done: false },
+      { text: 'Bearer token auth on every request — 401 if missing or wrong', done: false },
+    ],
+    notes: 'Enables T1Copilot to read journal entries and loggable events via MCP. T1Copilot\'s agent can then call confirm_log_event (HITL) for each extracted event before logging to Dexcom. Shared secret pattern — no OAuth complexity needed for a self-hosted personal system.'
+  },
+  {
+    id: 'P6', title: 'T1Copilot ← Journal MCP Client + AI SDK Tools',
+    status: 'todo',
+    tags: ['T1Copilot', 'MCP', 'AI SDK'],
+    subtasks: [
+      { text: 'packages/mcp-clients/src/journal-client.ts — callJournalTool + typed wrappers', done: false },
+      { text: 'Zod .strict() schemas for all 3 journal tool response shapes', done: false },
+      { text: 'fetch_journal_entries AI SDK tool on /api/chat/route.ts', done: false },
+      { text: 'fetch_journal_loggable_events AI SDK tool', done: false },
+      { text: 'render_journal_events AI SDK tool', done: false },
+      { text: 'render_journal_events added to ArtifactData union + T1Tools type', done: false },
+      { text: 'toolResultToArtifact mapping in AgentChat.tsx', done: false },
+      { text: 'JournalEventsArtifact.tsx — dark IDE style, one card per event, confirm note', done: false },
+      { text: 'ArtifactRouter.tsx — render_journal_events case', done: false },
+      { text: 'System prompt routing rule — fetch → extract → render → confirm per event', done: false },
+    ],
+    notes: 'Build order: P4 (Dexcom read/write) → P5 (MCP server) → P6 (T1Copilot client). By the time P6 ships, Dexcom already has logged events from journal analysis, so T1Copilot\'s correlation is immediately richer. Follows T1Copilot §2.3 — new artifact type requires 4 file touches.'
+  },
+  {
+    id: 'P7', title: 'AI Coaching Upgrade — Streaming + Multi-turn',
+    status: 'todo',
+    tags: ['AI', 'Streaming', 'UX'],
+    subtasks: [
+      { text: 'coaching_sessions table — Neon SQL + schema.ts', done: false },
+      { text: 'Upgrade qa() to use health_metrics context + device_data context', done: false },
+      { text: 'Add streaming responses to AISidebar via Vercel AI SDK', done: false },
+      { text: 'Multi-turn conversation history in AISidebar', done: false },
+      { text: 'Weekly coaching summary — auto-generated Monday cron', done: false },
+      { text: 'Proactive nudges — flag health_flags array entries', done: false },
+      { text: 'Suggested follow-up prompts after AI response', done: false },
+    ],
+    notes: 'Elevates AISidebar from single-question Q&A to proactive coaching. Streaming via Vercel AI SDK streamText — same pattern as T1Copilot /api/chat. health_metrics + device_glucose data enriches context beyond raw entry content.'
+  },
+  {
+    id: 'P8', title: 'Open Source Polish + Public Launch',
+    status: 'todo',
+    tags: ['Launch', 'OSS', 'Docs'],
+    subtasks: [
+      { text: 'Onboarding wizard — first-time user flow, optional device setup', done: false },
+      { text: 'Settings page — integrations, connected devices, account', done: false },
+      { text: 'MCP integration toggle UI — connect Dexcom button with OAuth flow', done: false },
+      { text: 'Dark mode refinement (currently partially implemented)', done: false },
+      { text: '.env.example with all required keys documented', done: false },
+      { text: 'Comprehensive README with architecture diagram', done: false },
+      { text: 'Demo mode with seeded sample data (no real account needed)', done: false },
+      { text: 'Playwright test coverage for device sync and AI coaching flows', done: false },
+      { text: 'Product Hunt launch', done: false },
+    ],
+    notes: 'Bring-your-own-keys project — each user runs their own Neon DB and API keys. No data ever touches a shared server. Long-term path: team plans, wearable integrations, B2B/clinical use.'
+  },
+];
+
+const SESSIONS = [
+  {
+    date: 'June 18–19, 2026',
+    text: 'PWA conversion + icon generation. Created manifest.json with pine tree icon set (192px, 512px, 512px maskable on white background using sage/forest/parchment palette). ServiceWorkerRegister.tsx client component — registers /sw.js on mount. sw.js static-asset caching only (JS/CSS/fonts/icons) — explicitly passes all /api/ requests and HTML navigation straight through. Wire manifest + appleWebApp meta + Viewport export into app/layout.tsx. Debugged www. cert mismatch — browser autocomplete artifact (www.journal-ai-app-eta.vercel.app has no cert on *.vercel.app). Resolved by manually typing full URL. App now installable on iPhone home screen.'
+  },
+  {
+    date: 'June 18, 2026',
+    text: 'AI analysis pipeline fixed. Migrated analyzeEntry from raw Anthropic SDK to generateObject + Zod schema (EntryAnalysisSchema, 40 fields). Raw SDK was failing silently on markdown-fenced JSON — analysis ran but parse failed, onConflictDoUpdate then wrote empty/zero values over the seed data, resulting in sentiment 0.0, color #0101fe, subject "None". generateObject eliminates the parse failure entirely. Seed placeholder values updated: color → #C9D5B8 (sage-light), mood/subject/summary → empty strings. Entry cards now show real mood, correct color, and non-zero sentiment after hitting Analyze. generateBalanceInsight (balance score + coaching insight) confirmed working — was already on generateObject path.'
+  },
+  {
+    date: 'June 18, 2026',
+    text: 'DB schema drift resolved. Columns balance_score, coaching_insight, coaching_recommendation missing from physical Neon DB despite being in schema.ts — added via ALTER TABLE ... ADD COLUMN IF NOT EXISTS. health_snapshot column also missing from journal_entries — same fix. entry_analysis_entry_id_unique constraint added (required by PATCH /api/entry/[id] onConflictDoUpdate). POST /api/entry was silently 500ing on Drizzle RETURNING * because balance_score column did not physically exist. drizzle-kit push confirmed BANNED in this codebase — Better Auth tables (user, session, account, verification) cause destructive drop warnings.'
+  },
+];
+
+// ── Render ──
+function badgeClass(s) {
+  return { done: 'badge-done', inprogress: 'badge-inprogress', todo: 'badge-todo', blocked: 'badge-blocked', planned: 'badge-planned' }[s] || 'badge-todo';
+}
+function badgeLabel(s) {
+  return { done: 'Done', inprogress: 'In progress', todo: 'To do', blocked: 'Blocked', planned: 'Planned' }[s] || 'To do';
+}
+
+const state = { expanded: {} };
+
+function renderPriorities() {
+  const el = document.getElementById('priorities');
+  el.innerHTML = '';
+  PRIORITIES.forEach(p => {
+    const open = !!state.expanded[p.id];
+    const div = document.createElement('div');
+    div.className = 'priority';
+    div.innerHTML = `
+      <div class="p-header" data-id="${p.id}">
+        <span class="p-tag">${p.id}</span>
+        <span class="p-title">${p.title}</span>
+        ${p.tags ? p.tags.map(t => `<span class="meta-pill">${t}</span>`).join('') : ''}
+        <span class="badge ${badgeClass(p.status)}">${badgeLabel(p.status)}</span>
+        <span class="chevron ${open ? 'open' : ''}">▾</span>
+      </div>
+      ${open ? `<div class="p-body">
+        <div class="subtasks">${p.subtasks.map(s => `
+          <div class="subtask ${s.done ? 'done' : ''}">
+            <div class="chk ${s.done ? 'done' : ''}"></div>
+            <span>${s.text}</span>
+          </div>`).join('')}
+        </div>
+        ${p.notes ? `<div class="notes">${p.notes}</div>` : ''}
+      </div>` : ''}
+    `;
+    div.querySelector('.p-header').addEventListener('click', () => {
+      state.expanded[p.id] = !state.expanded[p.id];
+      renderPriorities();
+    });
+    el.appendChild(div);
+  });
+
+  const done = PRIORITIES.filter(p => p.status === 'done').length;
+  const ip = PRIORITIES.filter(p => p.status === 'inprogress').length;
+  const todo = PRIORITIES.filter(p => p.status === 'todo' || p.status === 'blocked').length;
+  const total = PRIORITIES.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-ip').textContent = ip;
+  document.getElementById('s-todo').textContent = todo;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('pct').textContent = `${pct}%`;
+  document.getElementById('pfill').style.width = `${pct}%`;
+}
+
+function renderSessions() {
+  const el = document.getElementById('session-log-full');
+  if (!el) return;
+  el.innerHTML = SESSIONS.map(s => `
+    <div class="session">
+      <div class="session-date">${s.date}</div>
+      <div class="session-text">${s.text}</div>
+    </div>
+  `).join('');
+}
+
+function showSection(name) {
+  ['roadmap','architecture','integrations','sessions'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-link').forEach((el, i) => {
+    el.classList.toggle('active', el.getAttribute('onclick') === `showSection('${name}')`);
+  });
+  if (name === 'sessions') renderSessions();
+}
+
+// Open P3 by default (in progress)
+state.expanded['P3'] = true;
+renderPriorities();
+</script>
+</body>
+</html>
