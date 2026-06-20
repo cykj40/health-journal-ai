@@ -57,20 +57,18 @@ const EntryCard = ({ entry }: EntryCardProps) => {
     const handleExport = (e: React.MouseEvent) => {
         e.preventDefault()
 
-        const exportData = {
+        const obj = {
             date: entry.createdAt,
-            content: entry.content.replace(/<[^>]*>/g, ''),
-            mood: analysis.mood,
-            subject: analysis.subject,
-            summary: analysis.summary,
-            sentimentScore: analysis.sentimentScore,
-            balanceScore: analysis.balanceScore,
+            content: entry.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+            mood: entry.analysis.mood,
+            subject: entry.analysis.subject,
+            summary: entry.analysis.summary,
+            sentimentScore: entry.analysis.sentimentScore,
+            balanceScore: entry.analysis.balanceScore ?? null,
         }
 
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-            type: 'application/json',
-        })
-        downloadFile(blob, `journal-entry-${entry.createdAt.split('T')[0]}.json`)
+        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' })
+        downloadFile(blob, 'journal-entry-' + entry.createdAt.split('T')[0] + '.json')
     }
 
     return (
@@ -142,7 +140,7 @@ const EntryCard = ({ entry }: EntryCardProps) => {
                 <div className="flex shrink-0 items-start">
                     <button
                         onClick={handleExport}
-                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 text-forest-muted hover:text-forest transition-opacity flex items-center justify-center"
+                        className="shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition-opacity flex items-center justify-center text-forest-muted hover:text-forest"
                         style={{ minHeight: '44px', minWidth: '44px' }}
                         title="Export entry"
                     >

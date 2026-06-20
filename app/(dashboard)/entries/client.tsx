@@ -5,17 +5,14 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import EntryCard from '@/components/EntryCard'
 
-const groupEntriesByMonth = (entries: Entry[]) => {
-    return entries.reduce<Record<string, Entry[]>>((acc, entry) => {
-        const date = new Date(entry.createdAt)
-        const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' })
-
-        if (!acc[monthYear]) {
-            acc[monthYear] = []
-        }
-        acc[monthYear].push(entry)
-        return acc
-    }, {})
+function groupByMonth(entries: Entry[]): Array<{ month: string; entries: Entry[] }> {
+    const map = new Map<string, Entry[]>()
+    for (const e of entries) {
+        const key = new Date(e.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        if (!map.has(key)) map.set(key, [])
+        map.get(key)!.push(e)
+    }
+    return Array.from(map.entries()).map(([month, entries]) => ({ month, entries }))
 }
 
 export default function EntriesClient() {
@@ -79,51 +76,51 @@ export default function EntriesClient() {
         return () => controller.abort()
     }, [debouncedQ, startDate, endDate, mood, offset])
 
-    // Distinct moods present in the current result set
+    // Distinct non-empty moods present in the current result set
     const availableMoods = Array.from(
         new Set(entries.map((e) => e.analysis?.mood).filter(Boolean) as string[])
     )
 
-    const entriesByMonth = groupEntriesByMonth(entries)
+    const groups = groupByMonth(entries)
 
     return (
-        <div style={{ fontFamily: 'var(--font-dm-sans)' }}>
+        <div className="mt-6" style={{ fontFamily: 'var(--font-dm-sans)' }}>
             {/* Search */}
             <input
                 type="text"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search entries..."
-                className="w-full bg-white rounded-2xl border border-sage-light/30 shadow-sm px-4 py-3 text-sm text-forest placeholder:text-forest-muted outline-none mb-4"
+                className="rounded-2xl border border-sage-light/50 bg-white px-4 py-2 text-sm text-forest outline-none focus:border-sage w-full"
+                style={{ fontFamily: 'var(--font-dm-sans)' }}
             />
 
             {/* Date range */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mt-3">
                 <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="border border-sage text-forest rounded-lg px-2 py-1 text-sm outline-none"
+                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-none"
                 />
-                <span className="text-forest-muted text-sm">to</span>
                 <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="border border-sage text-forest rounded-lg px-2 py-1 text-sm outline-none"
+                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-none"
                 />
             </div>
 
             {/* Mood filter */}
             {availableMoods.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
+                <div className="flex flex-wrap gap-2 mt-3">
                     {availableMoods.map((m) => {
                         const active = mood === m
                         return (
                             <button
                                 key={m}
                                 onClick={() => setMood(active ? '' : m)}
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors ${active ? 'bg-sage text-white' : 'bg-sage-light text-forest'}`}
+                                className={`rounded-full px-3 py-1 text-xs font-medium ${active ? 'bg-sage text-white' : 'bg-white border border-sage-light/50 text-forest-muted'}`}
                             >
                                 {m}
                             </button>
@@ -133,29 +130,38 @@ export default function EntriesClient() {
             )}
 
             {/* Results */}
-            {entries.length === 0 && !loading ? (
+            {loading && entries.length === 0 ? (
+                <div className="mt-6 space-y-3">
+                    {[0, 1, 2].map((i) => (
+                        <div key={i} className="bg-white rounded-2xl border border-sage-light/30 h-16 animate-pulse" />
+                    ))}
+                </div>
+            ) : entries.length === 0 ? (
                 <div className="mt-16 flex flex-col items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-sage-light flex items-center justify-center">
                         <svg className="w-5 h-5 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <p className="text-sm text-forest-muted text-center">
-                        No entries match your filters
+                    <p className="text-sm text-forest-muted">
+                        No entries match your filters.
                     </p>
                 </div>
             ) : (
-                <div className="space-y-8">
-                    {Object.entries(entriesByMonth).map(([monthYear, monthEntries]) => (
-                        <div key={monthYear}>
-                            <h2 className="text-2xl font-semibold mb-4">{monthYear}</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {monthEntries.map((entry) => (
-                                    <Link key={entry.id} href={`/journal/${entry.id}`}>
-                                        <EntryCard entry={entry} />
-                                    </Link>
-                                ))}
-                            </div>
+                <div className="mt-6 space-y-8">
+                    {groups.map(({ month, entries: monthEntries }) => (
+                        <div key={month} className="space-y-3">
+                            <span
+                                className="text-xs font-semibold text-forest-muted tracking-widest uppercase"
+                                style={{ fontFamily: 'var(--font-dm-sans)' }}
+                            >
+                                {month}
+                            </span>
+                            {monthEntries.map((entry) => (
+                                <Link key={entry.id} href={`/journal/${entry.id}`}>
+                                    <EntryCard entry={entry} />
+                                </Link>
+                            ))}
                         </div>
                     ))}
                 </div>
@@ -167,7 +173,7 @@ export default function EntriesClient() {
                     <button
                         onClick={() => setOffset((prev) => prev + 50)}
                         disabled={loading}
-                        className="px-4 py-1.5 rounded-xl bg-[#5C7A52] text-white text-xs font-medium hover:bg-[#3D4A3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="bg-white border border-sage-light/50 text-forest-muted text-sm rounded-xl px-4 py-2"
                     >
                         {loading ? 'Loading…' : 'Load more'}
                     </button>
