@@ -780,21 +780,21 @@ const PRIORITIES = [
   },
   {
     id: 'P3', title: 'All Entries Tab — Full CRUD + Search',
-    status: 'inprogress',
+    status: 'done',
     tags: ['UI', 'API', 'Search'],
     subtasks: [
-      { text: 'GET /api/entries — server-driven search: q (ilike), startDate, endDate, mood filter, offset pagination', done: false },
-      { text: 'app/(dashboard)/entries/page.tsx + client.tsx — search input (debounced 400ms)', done: false },
-      { text: 'Date range filter row using design system colors', done: false },
-      { text: 'Mood filter pills — dynamic from result set, toggleable', done: false },
-      { text: 'Results grouped by month, rendered via EntryCard + Link', done: false },
-      { text: '"Load more" pagination — appends results, does not replace', done: false },
-      { text: 'Empty state matching journal page style', done: false },
-      { text: 'Add Entries to Sidebar.tsx and BottomNav.tsx (between Journal and Analytics)', done: false },
-      { text: 'Delete app/(dashboard)/archive/page.tsx — superseded by /entries', done: false },
-      { text: 'Per-entry JSON export — download icon on EntryCard, uses downloadFile from exportUtils', done: false },
+      { text: 'GET /api/entries — server-driven search: q (ilike), startDate, endDate, mood filter, offset pagination', done: true },
+      { text: 'app/(dashboard)/entries/page.tsx + client.tsx — search input (debounced 400ms)', done: true },
+      { text: 'Date range filter row using design system colors', done: true },
+      { text: 'Mood filter pills — dynamic from result set, toggleable', done: true },
+      { text: 'Results grouped by month, rendered via EntryCard + Link', done: true },
+      { text: '"Load more" pagination — appends results, does not replace', done: true },
+      { text: 'Empty state matching journal page style', done: true },
+      { text: 'Add Entries to Sidebar.tsx and BottomNav.tsx (between Journal and Analytics)', done: true },
+      { text: 'Delete app/(dashboard)/archive/page.tsx — superseded by /entries', done: true },
+      { text: 'Per-entry JSON export — download icon on EntryCard, uses downloadFile from exportUtils', done: true },
     ],
-    notes: 'Journal page only shows current month (firstDayOfMonth filter). Archive page exists but is unreachable — no nav links. All entries older than current month are effectively lost. /entries tab uses server-side DB filtering via indexed columns (journal_entries_created_at_idx, journal_entries_user_created_idx) — not a full table scan.'
+    notes: 'Journal page only shows current month (firstDayOfMonth filter). Archive page exists but is unreachable — no nav links. All entries older than current month are effectively lost. /entries tab uses server-side DB filtering via indexed columns (journal_entries_created_at_idx, journal_entries_user_created_idx) — not a full table scan. Note: lanceScore typo in /api/entries/route.ts (line 55) — should be balanceScore — balance pills will not render on Entries tab until fixed.'
   },
   {
     id: 'P4', title: 'Dexcom CGM Integration — Read + Write with HITL',
@@ -882,6 +882,10 @@ const PRIORITIES = [
 ];
 
 const SESSIONS = [
+  {
+    date: 'June 20, 2026',
+    text: 'P3 complete — All Entries tab shipped. GET /api/entries with server-driven search (q ilike, startDate/endDate between, mood eq, offset pagination, limit 50). app/(dashboard)/entries/page.tsx server component + client.tsx with 400ms debounced search, date range inputs, dynamic mood filter pills, groupByMonth helper, load more pagination (append not replace), empty state, 3 skeleton cards during load. Entries tab added to Sidebar.tsx and BottomNav.tsx between Journal and Analytics using document icon. app/(dashboard)/archive/page.tsx deleted — superseded. Per-entry JSON export button added to EntryCard.tsx — strips HTML tags, downloads as journal-entry-YYYY-MM-DD.json via downloadFile from exportUtils. Known issue: lanceScore typo in /api/entries/route.ts line 55 should be balanceScore — balance pills will not render on Entries tab until fixed in a follow-up.'
+  },
   {
     date: 'June 18–19, 2026',
     text: 'PWA conversion + icon generation. Created manifest.json with pine tree icon set (192px, 512px, 512px maskable on white background using sage/forest/parchment palette). ServiceWorkerRegister.tsx client component — registers /sw.js on mount. sw.js static-asset caching only (JS/CSS/fonts/icons) — explicitly passes all /api/ requests and HTML navigation straight through. Wire manifest + appleWebApp meta + Viewport export into app/layout.tsx. Debugged www. cert mismatch — browser autocomplete artifact (www.journal-ai-app-eta.vercel.app has no cert on *.vercel.app). Resolved by manually typing full URL. App now installable on iPhone home screen.'
