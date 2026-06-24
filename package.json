@@ -38,7 +38,7 @@
     "@types/pg": "^8.11.10",
     "@vitejs/plugin-react-swc": "^3.7.2",
     "ai": "^6.0.173",
-    "better-auth": "^1.6.2",
+    "better-auth": "^1.6.11",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.45.2",
     "emoji-mart": "^5.6.0",
