@@ -33,7 +33,7 @@ const AskAI = () => {
     }
 
     return (
-        <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-sm">
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-xs">
             <form onSubmit={handleSubmit} className="p-4">
                 <div className="flex gap-2">
                     <input
@@ -41,7 +41,7 @@ const AskAI = () => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Ask about your journal entries (e.g., 'How has my mood been lately?')"
-                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500"
                     />
                     <button
                         type="submit"

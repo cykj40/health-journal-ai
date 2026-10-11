@@ -105,14 +105,14 @@ export default function DateRangeFilter({
                         type="date"
                         value={startDate}
                         onChange={(e) => handleCustomDateChange(e.target.value, endDate)}
-                        className="border rounded px-2 py-1"
+                        className="border rounded-sm px-2 py-1"
                     />
                     <span>to</span>
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => handleCustomDateChange(startDate, e.target.value)}
-                        className="border rounded px-2 py-1"
+                        className="border rounded-sm px-2 py-1"
                     />
                 </div>
             )}
@@ -122,7 +122,7 @@ export default function DateRangeFilter({
                 <select
                     value={comparison}
                     onChange={(e) => handleComparisonChange(e.target.value as TimeComparison)}
-                    className="border rounded px-2 py-1"
+                    className="border rounded-sm px-2 py-1"
                 >
                     <option value="none">No Comparison</option>
                     <option value="week">Previous Week</option>

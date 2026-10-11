@@ -73,7 +73,7 @@ const EntryCard = ({ entry }: EntryCardProps) => {
 
     return (
         <div
-            className="relative bg-white rounded-2xl px-4 py-4 shadow-sm border border-sage-light/30 hover:shadow-md active:scale-[0.99] transition-all cursor-pointer group"
+            className="relative bg-white rounded-2xl px-4 py-4 shadow-xs border border-sage-light/30 hover:shadow-md active:scale-[0.99] transition-all cursor-pointer group"
             style={{ minHeight: '72px' }}
         >
             {isDeleting && (

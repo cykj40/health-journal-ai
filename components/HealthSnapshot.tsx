@@ -27,7 +27,7 @@ function StarRow({
                         key={n}
                         type="button"
                         onClick={() => onChange(n)}
-                        className="transition-transform hover:scale-110 focus:outline-none"
+                        className="transition-transform hover:scale-110 focus:outline-hidden"
                         title={`${label} ${n}`}
                     >
                         <svg
@@ -109,7 +109,7 @@ const HealthSnapshotWidget = ({ entryId }: HealthSnapshotProps) => {
                             value={sleepHours}
                             onChange={e => setSleepHours(e.target.value)}
                             placeholder="7.5"
-                            className="w-16 px-2 py-1 text-sm border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-violet-300 dark:focus:ring-violet-700 text-center"
+                            className="w-16 px-2 py-1 text-sm border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-violet-300 dark:focus:ring-violet-700 text-center"
                         />
                         <span className="text-xs text-gray-400 dark:text-zinc-500">hrs</span>
                     </div>
@@ -123,7 +123,7 @@ const HealthSnapshotWidget = ({ entryId }: HealthSnapshotProps) => {
                                 key={emoji}
                                 type="button"
                                 onClick={() => setMood(emoji === mood ? '' : emoji)}
-                                className={`text-xl transition-all hover:scale-110 focus:outline-none rounded-lg p-0.5 ${
+                                className={`text-xl transition-all hover:scale-110 focus:outline-hidden rounded-lg p-0.5 ${
                                     mood === emoji
                                         ? 'ring-2 ring-violet-400 bg-violet-50 dark:bg-violet-900/30'
                                         : 'opacity-60 hover:opacity-100'
