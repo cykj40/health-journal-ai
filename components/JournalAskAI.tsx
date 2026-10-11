@@ -34,7 +34,7 @@ const JournalAskAI = () => {
 
     return (
         <div
-            className="mb-8 bg-white rounded-2xl border border-sage-light/30 shadow-sm px-4 py-4"
+            className="mb-8 bg-white rounded-2xl border border-sage-light/30 shadow-xs px-4 py-4"
             style={{ fontFamily: 'var(--font-dm-sans)' }}
         >
             <textarea
@@ -47,7 +47,7 @@ const JournalAskAI = () => {
                 }}
                 placeholder="Ask anything about your journal..."
                 rows={2}
-                className="w-full resize-none bg-transparent text-sm text-forest placeholder:text-forest-muted outline-none"
+                className="w-full resize-none bg-transparent text-sm text-forest placeholder:text-forest-muted outline-hidden"
             />
 
             <div className="flex items-center justify-end gap-2 mt-3">
@@ -62,7 +62,7 @@ const JournalAskAI = () => {
                 <button
                     onClick={() => void handleAsk()}
                     disabled={!question.trim() || loading}
-                    className="px-4 py-1.5 rounded-xl bg-[#5C7A52] text-white text-xs font-medium hover:bg-[#3D4A3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 rounded-xl bg-sage text-white text-xs font-medium hover:bg-forest transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     {loading ? 'Asking…' : 'Ask'}
                 </button>

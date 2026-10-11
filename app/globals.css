@@ -1,6 +1,67 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
+
+  --color-parchment: #f5f2ec;
+  --color-forest: #3d4a3a;
+  --color-forest-muted: #6b7a66;
+  --color-sage: #5c7a52;
+  --color-sage-light: #c9d5b8;
+
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility fab-content-pad {
+  /*
+   * Bottom padding for the main content area on mobile
+   * so content isn't hidden behind the fixed tab bar.
+   * Overridden to 0 on lg+ via the lg:pb-0 Tailwind class in the layout.
+   */
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility fab-btn {
+  /*
+   * FAB (floating action button) position.
+   * Mobile: above the bottom tab bar, aligned with the 430px column right edge.
+   * Desktop (lg+): standard bottom-right corner of the viewport.
+   */
+  bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  right: max(1.5rem, calc(50vw - 215px + 1.5rem));
+
+  @media (min-width: 1024px) {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
 
 @layer base {
   html {
@@ -16,33 +77,5 @@
 
   .ProseMirror {
     min-height: 280px;
-  }
-}
-
-@layer utilities {
-  /*
-   * Bottom padding for the main content area on mobile
-   * so content isn't hidden behind the fixed tab bar.
-   * Overridden to 0 on lg+ via the lg:pb-0 Tailwind class in the layout.
-   */
-  .fab-content-pad {
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
-  }
-
-  /*
-   * FAB (floating action button) position.
-   * Mobile: above the bottom tab bar, aligned with the 430px column right edge.
-   * Desktop (lg+): standard bottom-right corner of the viewport.
-   */
-  .fab-btn {
-    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
-    right: max(1.5rem, calc(50vw - 215px + 1.5rem));
-  }
-
-  @media (min-width: 1024px) {
-    .fab-btn {
-      bottom: 1.5rem;
-      right: 1.5rem;
-    }
   }
 }

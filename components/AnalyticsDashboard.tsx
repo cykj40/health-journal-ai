@@ -324,7 +324,7 @@ export default function AnalyticsDashboard({
                 </div>
 
                 {/* Sleep Quality */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-sage-light/30">
+                <div className="bg-white p-6 rounded-2xl shadow-xs border border-sage-light/30">
                     <h2 className="text-xl font-semibold mb-4 text-forest">Sleep Quality</h2>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -346,7 +346,7 @@ export default function AnalyticsDashboard({
                 </div>
 
                 {/* Stress Level */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-sage-light/30">
+                <div className="bg-white p-6 rounded-2xl shadow-xs border border-sage-light/30">
                     <h2 className="text-xl font-semibold mb-4 text-forest">Stress Level</h2>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -368,7 +368,7 @@ export default function AnalyticsDashboard({
                 </div>
 
                 {/* Energy Level */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-sage-light/30">
+                <div className="bg-white p-6 rounded-2xl shadow-xs border border-sage-light/30">
                     <h2 className="text-xl font-semibold mb-4 text-forest">Energy Level</h2>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -390,7 +390,7 @@ export default function AnalyticsDashboard({
                 </div>
 
                 {/* Exercise Frequency */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-sage-light/30">
+                <div className="bg-white p-6 rounded-2xl shadow-xs border border-sage-light/30">
                     <h2 className="text-xl font-semibold mb-4 text-forest">Exercise Frequency</h2>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -411,7 +411,7 @@ export default function AnalyticsDashboard({
                         <h2 className="text-xl font-semibold">Summary</h2>
                         <button
                             onClick={() => setShowExportModal(true)}
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                            className="bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600 transition-colors"
                         >
                             Export Data
                         </button>

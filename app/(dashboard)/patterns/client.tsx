@@ -68,7 +68,7 @@ export default function PatternsClient({ healthMetrics, entryAnalysis }: Pattern
                 <button
                     onClick={() => void handleGenerate()}
                     disabled={loading}
-                    className="bg-[#5C7A52] text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-[#3D4A3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="bg-sage text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-forest transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     {loading ? 'Analyzing…' : 'Generate Patterns'}
                 </button>
@@ -81,12 +81,12 @@ export default function PatternsClient({ healthMetrics, entryAnalysis }: Pattern
             {loading && (
                 <div className="space-y-4">
                     {cardConfig.map(({ key }) => (
-                        <div key={key} className="bg-white rounded-2xl border border-sage-light/30 shadow-sm p-5 animate-pulse">
-                            <div className="h-4 bg-sage-light/40 rounded w-1/3 mb-3" />
+                        <div key={key} className="bg-white rounded-2xl border border-sage-light/30 shadow-xs p-5 animate-pulse">
+                            <div className="h-4 bg-sage-light/40 rounded-sm w-1/3 mb-3" />
                             <div className="space-y-2">
-                                <div className="h-3 bg-sage-light/30 rounded w-full" />
-                                <div className="h-3 bg-sage-light/30 rounded w-5/6" />
-                                <div className="h-3 bg-sage-light/30 rounded w-4/6" />
+                                <div className="h-3 bg-sage-light/30 rounded-sm w-full" />
+                                <div className="h-3 bg-sage-light/30 rounded-sm w-5/6" />
+                                <div className="h-3 bg-sage-light/30 rounded-sm w-4/6" />
                             </div>
                         </div>
                     ))}
@@ -97,7 +97,7 @@ export default function PatternsClient({ healthMetrics, entryAnalysis }: Pattern
             {!loading && result && (
                 <div className="space-y-4">
                     {cardConfig.map(({ key, title, subtitle }) => (
-                        <div key={key} className="bg-white rounded-2xl border border-sage-light/30 shadow-sm p-5">
+                        <div key={key} className="bg-white rounded-2xl border border-sage-light/30 shadow-xs p-5">
                             <h2
                                 className="text-sm font-semibold text-forest mb-0.5"
                                 style={{ fontFamily: 'var(--font-dm-sans)' }}

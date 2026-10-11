@@ -79,7 +79,7 @@ const Editor = ({
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                <div className="mx-auto w-full max-w-[680px] bg-white px-10 pt-10 pb-24 lg:pb-12 shadow-sm dark:bg-zinc-900 min-h-full">
+                <div className="mx-auto w-full max-w-[680px] bg-white px-10 pt-10 pb-24 lg:pb-12 shadow-xs dark:bg-zinc-900 min-h-full">
                     {dateLabel && (
                         <p className="hidden lg:block mb-8 text-sm tracking-wide text-gray-400 dark:text-zinc-500 font-sans select-none">
                             {dateLabel}
@@ -104,7 +104,7 @@ const Editor = ({
 
                     {/* ── Desktop toolbar (hidden on mobile) ── */}
                     <div className="mt-4 hidden lg:flex items-center gap-3">
-                        <Link href="/journal" className="text-sm text-[#3D4A3A] opacity-60 hover:opacity-100 transition-opacity">
+                        <Link href="/journal" className="text-sm text-forest opacity-60 hover:opacity-100 transition-opacity">
                             ← Journal
                         </Link>
                         <div className="flex-1" />
@@ -117,7 +117,7 @@ const Editor = ({
                         <button
                             onClick={onAnalyze}
                             disabled={isAnalyzing}
-                            className="px-4 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-xl border border-[#A8C5A0] text-sm text-sage hover:bg-[#f0f5ee] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {isAnalyzing ? (
                                 <span className="flex items-center justify-center gap-2">
@@ -136,11 +136,11 @@ const Editor = ({
                             Delete
                         </button>
                         {isSaved && (
-                            <span className="text-xs text-[#5C7A52] font-medium">✓ Saved</span>
+                            <span className="text-xs text-sage font-medium">✓ Saved</span>
                         )}
                         <button
                             onClick={onSave}
-                            className="px-4 py-2 rounded-xl bg-[#5C7A52] text-white text-sm font-medium hover:bg-[#3D4A3A] transition-colors"
+                            className="px-4 py-2 rounded-xl bg-sage text-white text-sm font-medium hover:bg-forest transition-colors"
                         >
                             Save
                         </button>
@@ -162,7 +162,7 @@ const Editor = ({
                 <button
                     onClick={onAnalyze}
                     disabled={isAnalyzing}
-                    className="flex-1 py-2 rounded-xl border border-[#A8C5A0] text-sm text-[#5C7A52] hover:bg-[#f0f5ee] transition-colors text-center disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="flex-1 py-2 rounded-xl border border-[#A8C5A0] text-sm text-sage hover:bg-[#f0f5ee] transition-colors text-center disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{ fontFamily: 'var(--font-dm-sans)' }}
                 >
                     {isAnalyzing ? (
@@ -177,11 +177,11 @@ const Editor = ({
                 </button>
                 <div className="flex items-center gap-2">
                     {isSaved && (
-                        <span className="text-xs text-[#5C7A52] font-medium" style={{ fontFamily: 'var(--font-dm-sans)' }}>✓</span>
+                        <span className="text-xs text-sage font-medium" style={{ fontFamily: 'var(--font-dm-sans)' }}>✓</span>
                     )}
                     <button
                         onClick={onSave}
-                        className="px-5 py-2 rounded-xl bg-[#5C7A52] text-white text-sm font-medium hover:bg-[#3D4A3A] transition-colors"
+                        className="px-5 py-2 rounded-xl bg-sage text-white text-sm font-medium hover:bg-forest transition-colors"
                         style={{ fontFamily: 'var(--font-dm-sans)', minHeight: '44px' }}
                     >
                         Save

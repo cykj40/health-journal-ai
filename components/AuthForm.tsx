@@ -134,7 +134,7 @@ export default function AuthForm({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-none transition-colors focus:border-sage"
+              className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-hidden transition-colors focus:border-sage"
               autoComplete="name"
               name="name"
               required
@@ -148,7 +148,7 @@ export default function AuthForm({
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-none transition-colors focus:border-sage"
+            className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-hidden transition-colors focus:border-sage"
             autoComplete="email"
             name="email"
             required
@@ -161,7 +161,7 @@ export default function AuthForm({
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-none transition-colors focus:border-sage"
+            className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-hidden transition-colors focus:border-sage"
             autoComplete={isSignUp ? 'new-password' : 'current-password'}
             name="password"
             required
@@ -175,7 +175,7 @@ export default function AuthForm({
               type="password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
-              className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-none transition-colors focus:border-sage"
+              className="w-full rounded-2xl border border-sage-light/70 bg-white px-4 py-3 text-forest outline-hidden transition-colors focus:border-sage"
               autoComplete="new-password"
               name="confirmPassword"
               required

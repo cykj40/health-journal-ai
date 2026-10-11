@@ -91,7 +91,7 @@ export default function EntriesClient() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search entries..."
-                className="rounded-2xl border border-sage-light/50 bg-white px-4 py-2 text-sm text-forest outline-none focus:border-sage w-full"
+                className="rounded-2xl border border-sage-light/50 bg-white px-4 py-2 text-sm text-forest outline-hidden focus:border-sage w-full"
                 style={{ fontFamily: 'var(--font-dm-sans)' }}
             />
 
@@ -101,13 +101,13 @@ export default function EntriesClient() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-none"
+                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-hidden"
                 />
                 <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-none"
+                    className="rounded-xl border border-sage-light/50 bg-white px-3 py-1.5 text-sm text-forest outline-hidden"
                 />
             </div>
 

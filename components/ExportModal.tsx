@@ -138,7 +138,7 @@ export default function ExportModal({
                                             orientation: e.target.value as 'portrait' | 'landscape',
                                         })
                                     }
-                                    className="w-full border rounded px-3 py-2"
+                                    className="w-full border rounded-sm px-3 py-2"
                                 >
                                     <option value="portrait">Portrait</option>
                                     <option value="landscape">Landscape</option>
@@ -159,7 +159,7 @@ export default function ExportModal({
                                     }
                                     min="8"
                                     max="16"
-                                    className="w-full border rounded px-3 py-2"
+                                    className="w-full border rounded-sm px-3 py-2"
                                 />
                             </div>
                             <div>
@@ -172,7 +172,7 @@ export default function ExportModal({
                                             theme: e.target.value as PDFOptions['theme'],
                                         })
                                     }
-                                    className="w-full border rounded px-3 py-2"
+                                    className="w-full border rounded-sm px-3 py-2"
                                 >
                                     <option value="default">Default</option>
                                     <option value="minimal">Minimal</option>
@@ -211,7 +211,7 @@ export default function ExportModal({
 
                 {/* Preview Section */}
                 {showPreview && (
-                    <div className="mb-6 border rounded p-4 max-h-[300px] overflow-auto">
+                    <div className="mb-6 border rounded-sm p-4 max-h-[300px] overflow-auto">
                         <h3 className="text-lg font-semibold mb-2">Preview</h3>
                         <pre className="text-sm">
                             {JSON.stringify(
@@ -232,13 +232,13 @@ export default function ExportModal({
                 <div className="flex justify-end gap-4">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 border rounded hover:bg-gray-100"
+                        className="px-4 py-2 border rounded-sm hover:bg-gray-100"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleExport}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        className="px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
                     >
                         Export
                     </button>

@@ -1,12 +1,12 @@
 'use client'
 
-import { useEditor, EditorContent, BubbleMenu, Editor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import TextStyle from '@tiptap/extension-text-style'
-import { Color } from '@tiptap/extension-color'
-import Highlight from '@tiptap/extension-highlight'
-import Placeholder from '@tiptap/extension-placeholder'
-import Image from '@tiptap/extension-image'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react/menus'
+import { StarterKit } from '@tiptap/starter-kit'
+import { TextStyle, Color } from '@tiptap/extension-text-style'
+import { Highlight } from '@tiptap/extension-highlight'
+import { Placeholder } from '@tiptap/extensions'
+import { Image } from '@tiptap/extension-image'
 import { useCallback, useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useDropzone } from 'react-dropzone'
 import ReactCrop, { Crop } from 'react-image-crop'
@@ -90,7 +90,7 @@ const ImageCropDialog = ({ imageUrl, onCrop, onCancel }: ImageCropDialogProps) =
                     <h2 className="text-lg font-semibold">Edit Image</h2>
                     <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
                     <ReactCrop crop={crop} onChange={c => setCrop(c)}>
                         <NextImage ref={imageRef as any} src={imageUrl} alt="Crop preview" width={800} height={600}
                             style={{ filter: filterStyle, maxWidth: '100%', height: 'auto' }} unoptimized />
@@ -101,15 +101,15 @@ const ImageCropDialog = ({ imageUrl, onCrop, onCancel }: ImageCropDialogProps) =
                             <div className="grid grid-cols-2 gap-1.5">
                                 {Object.entries(PRESET_FILTERS).map(([name, vals]) => (
                                     <button key={name} onClick={() => pushToHistory(vals)}
-                                        className={`px-2 py-1.5 rounded text-sm ${JSON.stringify(vals) === JSON.stringify(a) ? 'bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                                        className={`px-2 py-1.5 rounded-sm text-sm ${JSON.stringify(vals) === JSON.stringify(a) ? 'bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>
                                         {name}
                                     </button>
                                 ))}
                             </div>
                         </div>
                         <div className="flex justify-end gap-2 pt-2">
-                            <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
-                            <button onClick={handleCrop} className="px-3 py-1.5 text-sm bg-gray-900 text-white hover:bg-gray-700 rounded">Apply & Insert</button>
+                            <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-sm">Cancel</button>
+                            <button onClick={handleCrop} className="px-3 py-1.5 text-sm bg-gray-900 text-white hover:bg-gray-700 rounded-sm">Apply & Insert</button>
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,8 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            // Tiptap v3 StarterKit now bundles Link and Underline; keep v2 behaviour.
+            StarterKit.configure({ link: false, underline: false }),
             TextStyle,
             Color,
             Highlight.configure({ multicolor: true }),
@@ -132,9 +133,10 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
             Image.configure({ HTMLAttributes: { class: 'rounded-lg max-w-full h-auto my-4' } }),
         ],
         content,
+        immediatelyRender: false,
         editorProps: {
             attributes: {
-                class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[60vh] font-serif text-gray-900 dark:text-zinc-100 leading-relaxed',
+                class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-hidden min-h-[60vh] font-serif text-gray-900 dark:text-zinc-100 leading-relaxed',
             },
         },
         onUpdate: ({ editor }: { editor: Editor }) => {
@@ -147,7 +149,7 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
             editor?.chain().focus().insertContent(text).run()
         },
         setContent: (nextContent: string) => {
-            editor?.commands.setContent(nextContent, false)
+            editor?.commands.setContent(nextContent, { emitUpdate: false })
         },
     }), [editor])
 
@@ -156,7 +158,7 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
 
         const currentContent = editor.getHTML()
         if (content !== currentContent) {
-            editor.commands.setContent(content, false)
+            editor.commands.setContent(content, { emitUpdate: false })
         }
     }, [content, editor])
 
@@ -205,7 +207,7 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
 
             <BubbleMenu
                 editor={editor}
-                tippyOptions={{ duration: 150, placement: 'top' }}
+                options={{ placement: 'top' }}
                 className="flex items-center gap-0.5 px-1.5 py-1 bg-gray-900 rounded-lg shadow-xl"
             >
                 <BubbleButton
@@ -234,7 +236,7 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
                     isActive={editor.isActive('highlight')}
                     title="Highlight"
                 >
-                    <span className="text-sm px-0.5 bg-yellow-300 text-gray-900 rounded-sm">H</span>
+                    <span className="text-sm px-0.5 bg-yellow-300 text-gray-900 rounded-xs">H</span>
                 </BubbleButton>
                 <div className="w-px h-4 bg-white/20 mx-1" />
                 <BubbleButton
@@ -261,8 +263,8 @@ function RichTextEditor({ content, onChange, placeholder = 'Write your entry...'
                 </BubbleButton>
             </BubbleMenu>
 
-            <div {...getRootProps()} className="bg-white rounded-2xl border border-[#C9D5B8] shadow-sm min-h-[320px] p-6 mt-4 relative">
-                <p className="text-xs uppercase tracking-widest font-medium text-[#3D4A3A] opacity-60 mb-3">
+            <div {...getRootProps()} className="bg-white rounded-2xl border border-sage-light shadow-xs min-h-[320px] p-6 mt-4 relative">
+                <p className="text-xs uppercase tracking-widest font-medium text-forest opacity-60 mb-3">
                     {"Today's Entry"}
                 </p>
                 <EditorContent editor={editor} />
